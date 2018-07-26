@@ -144,6 +144,7 @@ function renderGiphyImg(giphyObj, imgDiv, altName) {
             imgItem.attr("srcAnim", imgAnimated);
             imgItem.attr("srcStill", imgStill);
             imgItem.attr("srcState", "still");
+            imgItem.addClass("img-fluid");
             console.log(imgItem);
 
             //add img element to card-body
