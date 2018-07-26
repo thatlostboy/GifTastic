@@ -1,0 +1,11 @@
+/* this is to enable support for safari ios 
+https://stackoverflow.com/questions/35945970/jquery-on-click-not-working-on-iphone-touch-devices
+*/
+body {
+    cursor: pointer;
+}
+
+.imgCard {
+    border: 2px solid red;
+    margin: 2px;
+}

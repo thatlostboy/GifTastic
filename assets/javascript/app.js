@@ -1,5 +1,5 @@
 listOfObjects = ['star wars', 'hello kitty', 'amazon alexa'];
-Favorites = [];
+listOfFavImgs = [];
 
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
 
@@ -7,6 +7,8 @@ $(document).ready(function () {
 
     renderButtonList(listOfObjects, ".imgButtonList");
 
+
+    // activate request for giphy items
     $("body").on("click", ".imgButton", function (event) {
         event.preventDefault();
         var buttonVal = this.innerText
@@ -15,22 +17,37 @@ $(document).ready(function () {
         queryGiphy (apikey, buttonVal, ".imgResultList", 10);
     })
 
+    // toggle image between still and animated
     $("body").on("click", ".giphyImg", function (event) {
         event.preventDefault();
         console.log(this);
-        animURL = $(this).attr("srcanim");
+
+        animURL = $(this).attr("srcanim");  
         stillURL =$(this).attr("srcstill");
+
+        // toggle conditionals 
         if ($(this).attr("srcstate") == "still") {
+            // if it's still, reasign the src to the animated URL and srcstate to animated
             console.log("We are still!");
             $(this).attr("srcstate","anim");
             $(this).attr("src", animURL);
         } else {
+            // else it is animated,so reassign the src to the still URL and srcstate to the still one. 
             console.log("We are animated!");
             $(this).attr("srcstate","still");
             $(this).attr("src", stillURL);
         }
     })
 
+    // delete button
+    $("body").on("dblclick", ".imgButton", function (event) {
+        // both single and double click event will register but that's okay
+        event.preventDefault();
+        var buttonIdx = $(this).attr("arrayidx");
+        console.log("-------------------> "+buttonIdx+" got double clicked");
+        listOfObjects.splice(buttonIdx,1);
+        renderButtonList(listOfObjects, ".imgButtonList");
+    })
 
 
     $("body").on("click", ".addBtn", function (event) {
@@ -62,11 +79,13 @@ function renderButtonList(btnList, btnDiv) {
     for (let i=0; i<btnList.length; i++) {
         let imgBtn = $("<button>");
         imgBtn.html(btnList[i]);
+        imgBtn.attr("arrayidx",i);
         // add more classes
         imgBtn.addClass("imgButton");
         $(btnDiv).append(imgBtn);
     }
 }
+
 
 function queryGiphy(apikey, searchStr, imgDiv, limit) {
     var baseURL = 'https://api.giphy.com/v1/gifs/search?';
@@ -98,12 +117,19 @@ function renderGiphyImg(giphyObj, imgDiv, altName) {
         $(imgDiv).empty();
         
         for (let i=0; i<giphyObj.length; i++) {
-            // create div element
+            // create card element
             let imgItemSpan = $("<card>");
-            // create p element            
-            let p = $("<p>");
+
+            // create card body
+            let cardBody = $("<div>");
+            cardBody.addClass("card-img-top");
+
+            // create card-footer element            
+            let cardFooter = $("<div>");
+            cardFooter.addClass("card-footer");
             let rating = "Rating: "+giphyObj[i].rating;
-            p.append(rating);
+            cardFooter.append(rating);
+
 
             // create image element with three addtiional attributes
             //  srcAnim is the url of the animated gif
@@ -120,10 +146,13 @@ function renderGiphyImg(giphyObj, imgDiv, altName) {
             imgItem.attr("srcState", "still");
             console.log(imgItem);
 
+            //add img element to card-body
+            cardBody.append(imgItem);
+
             // append p and img element to new div
-            
-            $(imgItemSpan).append(p, imgItem);
-            console.log($(imgItemSpan));
+            imgItemSpan.append(cardBody, cardFooter);
+            imgItemSpan.addClass("imgCard")
+            console.log(imgItemSpan);
             $(imgDiv).append(imgItemSpan);
         }
     }
