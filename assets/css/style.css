@@ -22,7 +22,7 @@ media queries for column count
 https://stackoverflow.com/questions/34140793/bootstrap-4-responsive-cards-in-card-columns
 */
 
-@media (min-width: 34em) {
+@media (min-width: 500px) {
     .card-columns {
         -webkit-column-count: 2;
         -moz-column-count: 2;
@@ -30,7 +30,7 @@ https://stackoverflow.com/questions/34140793/bootstrap-4-responsive-cards-in-car
     }
 }
 
-@media (min-width: 48em) {
+@media (min-width: 768px) {
     .card-columns {
         -webkit-column-count: 3;
         -moz-column-count: 3;
@@ -38,7 +38,7 @@ https://stackoverflow.com/questions/34140793/bootstrap-4-responsive-cards-in-car
     }
 }
 
-@media (min-width: 62em) {
+@media (min-width: 992px) {
     .card-columns {
         -webkit-column-count: 4;
         -moz-column-count: 4;
@@ -46,7 +46,7 @@ https://stackoverflow.com/questions/34140793/bootstrap-4-responsive-cards-in-car
     }
 }
 
-@media (min-width: 75em) {
+@media (min-width: 1200px) {
     .card-columns {
         -webkit-column-count: 5;
         -moz-column-count: 5;
