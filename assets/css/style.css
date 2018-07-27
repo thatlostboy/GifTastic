@@ -16,6 +16,18 @@ add overflow: hidden and transform: scale(1) to support safari ios
     transform: scale(1);
 }
 
+.card-footer {
+    font-size: 10px; 
+}
+
+
+.imgButton {
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+
 
 /*
 media queries for column count  
@@ -46,10 +58,4 @@ https://stackoverflow.com/questions/34140793/bootstrap-4-responsive-cards-in-car
     }
 }
 
-@media (min-width: 1200px) {
-    .card-columns {
-        -webkit-column-count: 5;
-        -moz-column-count: 5;
-        column-count: 5;
-    }
-}
+
