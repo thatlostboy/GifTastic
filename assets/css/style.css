@@ -5,6 +5,51 @@ body {
     cursor: pointer;
 }
 
+/* 
+https://stackoverflow.com/questions/48157071/ios-safari-html-element-does-not-honor-width-with-scaled-children
+add overflow: hidden and transform: scale(1) to support safari ios
+*/
+
 .giphyImg {
     width: 100%;
+    overflow: hidden;
+    transform: scale(1);
+}
+
+
+/*
+media queries for column count  
+https://stackoverflow.com/questions/34140793/bootstrap-4-responsive-cards-in-card-columns
+*/
+
+@media (min-width: 34em) {
+    .card-columns {
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+        column-count: 2;
+    }
+}
+
+@media (min-width: 48em) {
+    .card-columns {
+        -webkit-column-count: 3;
+        -moz-column-count: 3;
+        column-count: 3;
+    }
+}
+
+@media (min-width: 62em) {
+    .card-columns {
+        -webkit-column-count: 4;
+        -moz-column-count: 4;
+        column-count: 4;
+    }
+}
+
+@media (min-width: 75em) {
+    .card-columns {
+        -webkit-column-count: 5;
+        -moz-column-count: 5;
+        column-count: 5;
+    }
 }
