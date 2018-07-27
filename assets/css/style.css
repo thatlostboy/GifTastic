@@ -22,7 +22,7 @@ media queries for column count
 https://stackoverflow.com/questions/34140793/bootstrap-4-responsive-cards-in-card-columns
 */
 
-@media (min-width: 500px) {
+@media (min-width: 400px) {
     .card-columns {
         -webkit-column-count: 2;
         -moz-column-count: 2;
