@@ -1,12 +1,23 @@
-listOfObjects = ['star wars', 'hello kitty', 'amazon alexa'];
-listOfFavImgs = [];
+var listOfObjects = JSON.parse(localStorage.getItem("btnList"));
+
+if (!Array.isArray(listOfObjects)) {
+    listOfObjects = ['van'];
+}
+
+var listOfFavImgs = JSON.parse(localStorage.getItem("favImgList"));
+
+if (!Array.isArray(listOfFavImgs)) {
+    listOfFavImgs = [];``
+}
+
+
 
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
 
 $(document).ready(function () {
 
-    renderButtonList(listOfObjects, ".imgButtonList");
 
+    renderButtonList(listOfObjects, ".imgButtonList");
 
     // activate request for giphy items
     $("body").on("click", ".imgButton", function (event) {
@@ -46,6 +57,9 @@ $(document).ready(function () {
         var buttonIdx = $(this).attr("arrayidx");
         console.log("-------------------> "+buttonIdx+" got double clicked");
         listOfObjects.splice(buttonIdx,1);
+
+        // store values on client localStorage and render image
+        storeValues(listOfObjects, listOfFavImgs);
         renderButtonList(listOfObjects, ".imgButtonList");
     })
 
@@ -64,6 +78,9 @@ $(document).ready(function () {
             $("#addName").val("");
             console.log(newBtnText);
             listOfObjects.push(newBtnText);
+
+            // store values on client localStorage and render image
+            storeValues(listOfObjects, listOfFavImgs);
             renderButtonList(listOfObjects, ".imgButtonList");
         } else {
             console.log("Nothing!")
@@ -87,6 +104,7 @@ function renderButtonList(btnList, btnDiv) {
 }
 
 
+// query giphy API for images
 function queryGiphy(apikey, searchStr, imgDiv, limit) {
     var baseURL = 'https://api.giphy.com/v1/gifs/search?';
     var queryParams = { 
@@ -145,7 +163,6 @@ function renderGiphyImg(giphyObj, imgDiv, altName) {
             imgItem.attr("srcStill", imgStill);
             imgItem.attr("srcState", "still");
             imgItem.addClass("img-fluid");
-            console.log(imgItem);
 
             //add img element to card-body
             cardBody.append(imgItem);
@@ -158,3 +175,16 @@ function renderGiphyImg(giphyObj, imgDiv, altName) {
         }
     }
     
+// store topics and favorites
+function storeValues(btnList,favImgList) {
+    localStorage.clear();
+
+    var btnListJSON = JSON.stringify(btnList);
+    localStorage.setItem("btnList", btnListJSON);
+    console.log("btnList: ", btnListJSON);
+
+    var favImgListJSON = JSON.stringify(favImgList);
+    localStorage.setItem("favImgList", favImgListJSON);
+    console.log("favImgList: ", favImgList);
+
+}
