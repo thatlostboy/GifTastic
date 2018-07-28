@@ -1,9 +1,9 @@
 
-var listOfObjects = JSON.parse(localStorage.getItem("btnList"));
+var listOfObjects = JSON.parse(localStorage.getItem("topicList"));
 
 if (!Array.isArray(listOfObjects)) {
     listOfObjects = ['hello'];
-} 
+}
 
 
 // check if the favorites exists in local Storage 
@@ -13,11 +13,11 @@ var listofFavImgsJSON = localStorage.getItem("favImgList");
 if (listofFavImgsJSON === null) {
     var listOfFavImgs = {};
     // initialize the storage variable.  safari didn't store it correctly. 
-    storeValues(listOfObjects,listOfFavImgs);
+    storeValues(listOfObjects, listOfFavImgs);
     console.log("no favorite images");
 } else {
     var listOfFavImgs = JSON.parse(listofFavImgsJSON);
-    console.log("found some images"); 
+    console.log("found some images");
 }
 
 
@@ -27,7 +27,7 @@ var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
 $(document).ready(function () {
 
 
-    renderButtonList(listOfObjects, ".imgButtonList");
+    renderTopicList(listOfObjects, ".imgButtonList");
 
     renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
@@ -37,7 +37,7 @@ $(document).ready(function () {
         var buttonVal = this.innerText
 
         // this will queryGiphy and then send it to the renderGiphy
-        queryGiphy(apikey, buttonVal, ".imgResultList", 10);
+        queryGiphy(apikey, buttonVal, ".imgResultList", 10, 0, "pg-13");
     })
 
     // toggle image between still and animated
@@ -48,7 +48,7 @@ $(document).ready(function () {
         animURL = $(this).attr("srcanim");
         stillURL = $(this).attr("srcstill");
 
-        // toggle conditionals 
+        // toggle conditionals between still and animated 
         if ($(this).attr("srcstate") == "still") {
             // if it's still, reasign the src to the animated URL and srcstate to animated
             console.log("We are still!");
@@ -62,8 +62,8 @@ $(document).ready(function () {
         }
     })
 
-    // delete button
-    $("body").on("dblclick", ".imgButton", function (event) {
+    // delete Topic button
+    $("body").on("click", ".delXTopic", function (event) {
         // both single and double click event will register but that's okay
         event.preventDefault();
         var buttonIdx = $(this).attr("arrayidx");
@@ -72,17 +72,62 @@ $(document).ready(function () {
 
         // store values on client localStorage and render image
         storeValues(listOfObjects, listOfFavImgs);
-        renderButtonList(listOfObjects, ".imgButtonList");
+        renderTopicList(listOfObjects, ".imgButtonList");
     })
 
-    // add button 
+    // delete all favorites 
+    $("body").on("click", ".clearAllFavBtn", function (event) {
+        event.preventDefault();
+        console.log("Clicketed delete all");
+        if (confirm("Are you sure you want to remove all your favorites?")) {
+
+            // clear favorite array
+            listOfFavImgs = {};
+
+            //store values
+            storeValues(listOfObjects, listOfFavImgs);
+
+            //render favorites
+            renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
+
+            console.log("Deleted All");
+
+        } else {
+            console.log("Did not delete any");
+        }
+    })
+
+
+    // delete selected favorite
+    $("body").on("click", ".removeFav", function (event) {
+        event.preventDefault();
+        var slug = $(this).attr("slug");
+        if (confirm("Are you sure you want to delete this image?")) {
+            console.log("Deleted singele image");
+
+            // delete single favorite
+            removeSingleFavImg(listOfFavImgs, slug, "div.favCard");
+
+            //store values
+            storeValues(listOfObjects, listOfFavImgs);
+
+            //render favorites
+            renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
+
+        } else {
+            console.log("Did not delete any");
+        }
+    });
+
+
+    // add to Topics 
     $("body").on("click", ".addBtn", function (event) {
         event.preventDefault();
         console.log("Clicked addBtn");
         addBtnEventHandler();
     })
 
-    // add to favorites
+    // on gif, click on heart to add to favorites
     $("body").on("click", ".addFav", function (event) {
         event.preventDefault();
         console.log($(this).attr("srcanim"));
@@ -107,9 +152,13 @@ $(document).ready(function () {
             //render favorites
             renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
+            // alert added to FAvorites
+            alert("Added to Favorites Tab: " + slugtag);
 
-        } else { 
+
+        } else {
             console.log("found it in array already! ")
+            alert("Already in Favorites Tab!");
         };
     });
 
@@ -130,13 +179,28 @@ $(document).ready(function () {
 });
 
 
-function removeFav () {
+function removeSingleFavImg(favList, slugID, cssID) {
+    //cssID = "div.favCard"
+
+    selector = cssID + "[slug='" + slugID + "']";
     // remove card element based on slug value 
     //$("div.favCard[slug='vintage-superman-comics-3HSzHiDUtNLhu']").remove()
 
-    // remove item from Fav Array
+    // remove from screen
+    console.log(slugID);
+    $(selector).remove();
 
-    // store in localStorage
+    // remove item from Fav Array
+    console.log("before: ", favList);
+    delete favList[slugID];
+    console.log("after: ", favList);
+
+    //store values
+    storeValues(listOfObjects, favList);
+
+    //render favorites
+    renderFavGiphyImgList(favList, ".imgFavResultList");
+
 }
 
 
@@ -159,7 +223,7 @@ function addBtnEventHandler() {
 
         // store values on client localStorage and render image
         storeValues(listOfObjects, listOfFavImgs);
-        renderButtonList(listOfObjects, ".imgButtonList");
+        renderTopicList(listOfObjects, ".imgButtonList");
     } else {
         console.log("Nothing!")
     }
@@ -167,25 +231,46 @@ function addBtnEventHandler() {
 
 
 // render button list
-function renderButtonList(btnList, btnDiv) {
+function renderTopicList(topicList, btnDiv) {
     $(btnDiv).empty();
-    for (let i = 0; i < btnList.length; i++) {
+    for (let i = 0; i < topicList.length; i++) {
+
+        // div for button group
+        let btnGroup = $("<div>");
+        btnGroup.addClass("btn-group imgButton");
+
+        // button 1 of button group (add to display)
         let imgBtn = $("<button>");
-        imgBtn.html(btnList[i]);
+        imgBtn.html(topicList[i]);
         imgBtn.attr("arrayidx", i);
         // add more classes
-        imgBtn.addClass("imgButton btn btn-info btn-sm");
-        $(btnDiv).append(imgBtn);
+        imgBtn.addClass("selTopic btn btn-secondary btn-sm leftPadding");
+
+
+        // button 2 of button group (delete)
+        let delXBtn = $("<button>");
+        delXBtn.addClass("btn btn-secondary btn-sm delXTopic");
+        delXBtn.attr("arrayidx", i);
+        delXBtn.html("X");
+
+        // combine btn1 and btn2 to buttongroup
+        btnGroup.append(delXBtn, imgBtn);
+
+        // add buttongroup to div
+        $(btnDiv).append(btnGroup);
+
+        //$(btnDiv).append(imgBtn);
     }
 }
 
 
 // query giphy API for images
-function queryGiphy(apikey, searchStr, imgDiv, limit) {
+function queryGiphy(apikey, searchStr, imgDiv, limit, offset, rating) {
     var baseURL = 'https://api.giphy.com/v1/gifs/search?';
     var queryParams = {
         "api_key": apikey,
         "q": searchStr,
+        "rating": rating,
         "limit": limit,
         "lang": "en",
     }
@@ -199,6 +284,7 @@ function queryGiphy(apikey, searchStr, imgDiv, limit) {
         url: queryURL,
         method: "GET",
     }).then(function (response) {
+        console.log(response);
         console.log(response.data);
         renderGiphyImgLst(response.data, imgDiv, searchStr);
     });
@@ -215,12 +301,7 @@ function renderFavGiphyImgList(favList, imgDiv) {
 
     // draw favorites
     for (var index in favList) {
-        /*
-        console.log(index, ":::::", favList[index]);
-        let imgItem = $("<img>");
-        imgItem.attr("src", favList[index]["srcAnim"]);
-        $(imgDiv).append(imgItem);
-        */
+
         // create image element with three addtiional attributes
         //  srcAnim is the url of the animated gif
         //  srcStill is the url of the still gif
@@ -228,12 +309,12 @@ function renderFavGiphyImgList(favList, imgDiv) {
         let imgStill = favList[index]["srcStill"];
         let imgAnimated = favList[index]["srcAnim"];
         let imgSlug = favList[index].slug;   // grab a unique identifier to use for favorites later
-        
+
 
         // create card element
         let imgCard = $("<div>");
         imgCard.addClass("card favCard");
-        imgCard.attr("slug",imgSlug);
+        imgCard.attr("slug", imgSlug);
 
 
         // create card body
@@ -274,7 +355,7 @@ function renderFavGiphyImgList(favList, imgDiv) {
 
         // append p and img element to new div
         imgCard.append(cardBody, cardFooter);
-        console.log(imgCard);
+        // console.log(imgCard);
         $(imgDiv).append(imgCard);
     }
 
@@ -296,7 +377,7 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         let imgStill = giphyObj[i].images.fixed_height_still.url;
         let imgAnimated = giphyObj[i].images.fixed_height.url;
         let imgSlug = giphyObj[i].slug;   // grab a unique identifier to use for favorites later
-        
+
 
         // create card element
         let imgCard = $("<div>");
@@ -318,8 +399,8 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         favBtn.attr("srcAnim", imgAnimated);
         favBtn.attr("srcStill", imgStill);
         favBtn.attr("slug", imgSlug);
-        favBtn.attr("rating",rating);
-        favBtn.text("FAV");
+        favBtn.attr("rating", rating);
+        favBtn.html('<i class="fas fa-heart"></i>');
 
 
         // add content to footer
@@ -342,18 +423,18 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
 
         // append p and img element to new div
         imgCard.append(cardBody, cardFooter);
-        console.log(imgCard);
+        // console.log(imgCard);
         $(imgDiv).append(imgCard);
     }
 }
 
 // store topics and favorites
-function storeValues(btnList, favImgList) {
+function storeValues(topicList, favImgList) {
     localStorage.clear();
 
-    var btnListJSON = JSON.stringify(btnList);
-    localStorage.setItem("btnList", btnListJSON);
-    console.log("btnList: ", btnListJSON);
+    var topicListJSON = JSON.stringify(topicList);
+    localStorage.setItem("topicList", topicListJSON);
+    console.log("topicList: ", topicListJSON);
 
     var favImgListJSON = JSON.stringify(favImgList);
     localStorage.setItem("favImgList", favImgListJSON);

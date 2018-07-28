@@ -19,6 +19,7 @@ add overflow: hidden and transform: scale(1) to support safari ios
 .card-footer {
     font-size: 12px; 
     padding: 3px 3px;
+    height: 28px;
 }
 
 
@@ -26,16 +27,50 @@ add overflow: hidden and transform: scale(1) to support safari ios
     margin-top: 5px;
     margin-right: 5px;
     margin-bottom: 5px;
+    text-align: left;
 }
 
 .addFav {
-    background: pink;
+    color: pink;
+    border: 0px;
     position: absolute;
     right: 5px;
     bottom: 2px;
-    line-height: 14px;
+    background-color: rgba(0,0,0,.03);   /* to match footer */
 }
 
+.addFav:hover {
+    color: red;
+}
+
+.removeFav {
+    color: red;
+    font-weight: bold;
+    position: absolute;
+    right: 5px;
+    bottom: 2px;
+
+}
+
+.leftPadding {
+    padding-left: 2px;
+}
+
+.marginTop {
+    margin-top: 5px;
+}
+
+.selTopic:hover {
+    color: aqua;
+}
+
+.delXTopic {
+    padding-right: 2px;
+}
+
+.delXTopic:hover {
+    color: red;
+}
 
 
 /*
