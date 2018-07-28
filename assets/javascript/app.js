@@ -1,3 +1,4 @@
+
 var listOfObjects = JSON.parse(localStorage.getItem("btnList"));
 
 if (!Array.isArray(listOfObjects)) {
@@ -8,11 +9,16 @@ if (!Array.isArray(listOfObjects)) {
 // check if the favorites exists in local Storage 
 var listofFavImgsJSON = localStorage.getItem("favImgList");
 
-if (listofFavImgsJSON ) {
-    var listOfFavImgs = JSON.parse(listofFavImgsJSON);
-} else {
+
+if (listofFavImgsJSON === null) {
     var listOfFavImgs = {};
+    console.log("no favorite images");
+} else {
+    var listOfFavImgs = JSON.parse(listofFavImgsJSON);
+    console.log("found some images"); 
 }
+
+
 
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
 
@@ -84,23 +90,25 @@ $(document).ready(function () {
         // if slug (unique id) isn't already in favorite list, then add to favorite list
         if (!(slugtag in listOfFavImgs)) {
 
-                // create object 
-                let newImgObj = {};
-                newImgObj.srcAnim = $(this).attr("srcAnim");
-                newImgObj.srcStill = $(this).attr("srcStill");
-                newImgObj.slug = $(this).attr("slug");
+            // create object 
+            let newImgObj = {};
+            newImgObj.srcAnim = $(this).attr("srcAnim");
+            newImgObj.srcStill = $(this).attr("srcStill");
+            newImgObj.slug = $(this).attr("slug");
 
-                // add to index basd on slug
-                listOfFavImgs[newImgObj.slug] = newImgObj;
+            // add to index basd on slug
+            listOfFavImgs[newImgObj.slug] = newImgObj;
 
-                //store values
-                storeValues(listOfObjects, listOfFavImgs);
+            //store values
+            storeValues(listOfObjects, listOfFavImgs);
 
-                //render favorites
-                renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
+            //render favorites
+            renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
-            
-        } ;
+
+        } else { 
+            console.log("found it in array already! ")
+        };
     });
 
     // allow pressing the enter key to trigger click event, using solution #3 below, 
@@ -135,7 +143,7 @@ function addBtnEventHandler() {
 
         // clear value
         $("#addName").val("");
-        console.log(newBtnText);
+        //console.log(newBtnText);
         listOfObjects.push(newBtnText);
 
         // store values on client localStorage and render image
@@ -191,8 +199,8 @@ function renderFavGiphyImgList(favList, imgDiv) {
     // clear out div
     $(imgDiv).empty();
 
-    console.log("Am i in the render favorite function?");
-    console.log(favList);
+    //console.log("Am i in the render favorite function?");
+    //console.log(favList);
 
     // draw favorites
     for (var index in favList) {
