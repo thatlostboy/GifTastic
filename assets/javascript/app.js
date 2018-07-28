@@ -5,8 +5,8 @@ if (!Array.isArray(listOfObjects)) {
 }
 
 
+// check if the favorites exists in local Storage 
 var listofFavImgsJSON = localStorage.getItem("favImgList");
-
 
 if (listofFavImgsJSON ) {
     var listOfFavImgs = JSON.parse(listofFavImgsJSON);
@@ -82,8 +82,7 @@ $(document).ready(function () {
         let slugtag = $(this).attr("slug");
 
         // if slug (unique id) isn't already in favorite list, then add to favorite list
-        if (listOfFavImgs !== null) {
-            if (!(slugtag in listOfFavImgs)) {
+        if (!(slugtag in listOfFavImgs)) {
 
                 // create object 
                 let newImgObj = {};
@@ -100,24 +99,9 @@ $(document).ready(function () {
                 //render favorites
                 renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
-            }
-        } else {
-            // create object 
-            let newImgObj = {};
-            newImgObj.srcAnim = $(this).attr("srcAnim");
-            newImgObj.srcStill = $(this).attr("srcStill");
-            newImgObj.slug = $(this).attr("slug");
-
-            // add to index basd on slug
-            listOfFavImgs[newImgObj.slug] = newImgObj;
-
-            //store values
-            storeValues(listOfObjects, listOfFavImgs);
-
-            //render favorites
-            renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
-        }
-    })
+            
+        } ;
+    });
 
     // allow pressing the enter key to trigger click event, using solution #3 below, 
     // https://www.codeproject.com/Questions/833565/Press-the-enter-key-in-a-text-box-with-jQuery
