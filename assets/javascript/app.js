@@ -3,7 +3,7 @@ var listOfObjects = JSON.parse(localStorage.getItem("btnList"));
 
 if (!Array.isArray(listOfObjects)) {
     listOfObjects = ['hello'];
-}
+} 
 
 
 // check if the favorites exists in local Storage 
@@ -12,6 +12,8 @@ var listofFavImgsJSON = localStorage.getItem("favImgList");
 
 if (listofFavImgsJSON === null) {
     var listOfFavImgs = {};
+    // initialize the storage variable.  safari didn't store it correctly. 
+    storeValues(listOfObjects,listOfFavImgs);
     console.log("no favorite images");
 } else {
     var listOfFavImgs = JSON.parse(listofFavImgsJSON);
@@ -228,10 +230,12 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         let imgStill = giphyObj[i].images.fixed_height_still.url;
         let imgAnimated = giphyObj[i].images.fixed_height.url;
         let imgSlug = giphyObj[i].slug;   // grab a unique identifier to use for favorites later
-        let imgItem = $("<img>");
+        
 
         // create card element
-        let imgItemSpan = $("<card>");
+        let imgCard = $("<div>");
+        imgCard.addClass("card imgCard");
+
 
         // create card body
         let cardBody = $("<div>");
@@ -256,6 +260,7 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
 
 
         // add attributes to img
+        let imgItem = $("<img>");
         imgItem.addClass("giphyImg");
         imgItem.attr("src", imgStill);
         imgItem.attr("alt", altName);
@@ -269,10 +274,9 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         cardBody.append(imgItem);
 
         // append p and img element to new div
-        imgItemSpan.append(cardBody, cardFooter);
-        imgItemSpan.addClass("imgCard")
-        console.log(imgItemSpan);
-        $(imgDiv).append(imgItemSpan);
+        imgCard.append(cardBody, cardFooter);
+        console.log(imgCard);
+        $(imgDiv).append(imgCard);
     }
 }
 
