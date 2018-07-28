@@ -17,7 +17,8 @@ add overflow: hidden and transform: scale(1) to support safari ios
 }
 
 .card-footer {
-    font-size: 10px; 
+    font-size: 12px; 
+    padding: 3px 3px;
 }
 
 
@@ -25,6 +26,14 @@ add overflow: hidden and transform: scale(1) to support safari ios
     margin-top: 5px;
     margin-right: 5px;
     margin-bottom: 5px;
+}
+
+.addFav {
+    background: pink;
+    position: absolute;
+    right: 5px;
+    bottom: 2px;
+    line-height: 14px;
 }
 
 

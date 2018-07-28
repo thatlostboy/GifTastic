@@ -130,6 +130,15 @@ $(document).ready(function () {
 });
 
 
+function removeFav () {
+    // remove card element based on slug value 
+    //$("div.favCard[slug='vintage-superman-comics-3HSzHiDUtNLhu']").remove()
+
+    // remove item from Fav Array
+
+    // store in localStorage
+}
+
 
 function addBtnEventHandler() {
 
@@ -206,10 +215,67 @@ function renderFavGiphyImgList(favList, imgDiv) {
 
     // draw favorites
     for (var index in favList) {
+        /*
         console.log(index, ":::::", favList[index]);
         let imgItem = $("<img>");
         imgItem.attr("src", favList[index]["srcAnim"]);
         $(imgDiv).append(imgItem);
+        */
+        // create image element with three addtiional attributes
+        //  srcAnim is the url of the animated gif
+        //  srcStill is the url of the still gif
+        //  srcState is the current gif being used--still or animated
+        let imgStill = favList[index]["srcStill"];
+        let imgAnimated = favList[index]["srcAnim"];
+        let imgSlug = favList[index].slug;   // grab a unique identifier to use for favorites later
+        
+
+        // create card element
+        let imgCard = $("<div>");
+        imgCard.addClass("card favCard");
+        imgCard.attr("slug",imgSlug);
+
+
+        // create card body
+        let cardBody = $("<div>");
+        cardBody.addClass("card-img-top");
+
+        // create card-footer element            
+        let cardFooter = $("<div>");
+        cardFooter.addClass("card-footer");
+        // create rating text
+        // let rating = "Rating: " + giphyObj[i].rating;
+        // create favorite Buttonand store values in it
+        let favBtn = $("<button>");
+        favBtn.addClass("removeFav");
+        favBtn.attr("srcAnim", imgAnimated);
+        favBtn.attr("srcStill", imgStill);
+        favBtn.attr("slug", imgSlug);
+        favBtn.text("X");
+
+
+        // add content to footer
+        cardFooter.append(favBtn);
+
+
+        // add attributes to img
+        let imgItem = $("<img>");
+        imgItem.addClass("giphyImg");
+        imgItem.attr("src", imgAnimated);
+        imgItem.attr("alt", imgSlug);
+        imgItem.attr("srcAnim", imgAnimated);
+        imgItem.attr("srcStill", imgStill);
+        imgItem.attr("slug", imgSlug);
+        imgItem.attr("srcState", "anim");
+        imgItem.addClass("img-fluid");
+
+        //add img element to card-body
+        cardBody.append(imgItem);
+
+        // append p and img element to new div
+        imgCard.append(cardBody, cardFooter);
+        console.log(imgCard);
+        $(imgDiv).append(imgCard);
     }
 
 }
@@ -248,10 +314,11 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         let rating = "Rating: " + giphyObj[i].rating;
         // create favorite Buttonand store values in it
         let favBtn = $("<button>");
-        favBtn.addClass("addFav btn btn-warning btn-sm");
+        favBtn.addClass("addFav");
         favBtn.attr("srcAnim", imgAnimated);
         favBtn.attr("srcStill", imgStill);
         favBtn.attr("slug", imgSlug);
+        favBtn.attr("rating",rating);
         favBtn.text("FAV");
 
 
