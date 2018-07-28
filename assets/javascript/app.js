@@ -1,16 +1,18 @@
 var listOfObjects = JSON.parse(localStorage.getItem("btnList"));
 
 if (!Array.isArray(listOfObjects)) {
-    listOfObjects = ['van'];
-}
-
-var listOfFavImgs = JSON.parse(localStorage.getItem("favImgList"));
-
-if (!Array.isArray(listOfFavImgs)) {
-    listOfFavImgs = []; ``
+    listOfObjects = ['hello'];
 }
 
 
+var listofFavImgsJSON = localStorage.getItem("favImgList");
+
+
+if (listofFavImgsJSON ) {
+    var listOfFavImgs = JSON.parse(listofFavImgsJSON);
+} else {
+    var listOfFavImgs = {};
+}
 
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
 
@@ -18,6 +20,8 @@ $(document).ready(function () {
 
 
     renderButtonList(listOfObjects, ".imgButtonList");
+
+    renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
     // activate request for giphy items
     $("body").on("click", ".imgButton", function (event) {
@@ -67,31 +71,58 @@ $(document).ready(function () {
     $("body").on("click", ".addBtn", function (event) {
         event.preventDefault();
         console.log("Clicked addBtn");
-        // grab button Value
-        var newBtnText = $("#addName").val().trim();
+        addBtnEventHandler();
+    })
 
-        // if text is not blank, add it to button list and render
-        //  a new button list
-        if (newBtnText) {
-            // grab value in text area
-            var newBtnText = $("#addName").val().trim();
+    // add to favorites
+    $("body").on("click", ".addFav", function (event) {
+        event.preventDefault();
+        console.log($(this).attr("srcanim"));
 
+        let slugtag = $(this).attr("slug");
 
-            // clear value
-            $("#addName").val("");
-            console.log(newBtnText);
-            listOfObjects.push(newBtnText);
+        // if slug (unique id) isn't already in favorite list, then add to favorite list
+        if (listOfFavImgs !== null) {
+            if (!(slugtag in listOfFavImgs)) {
 
-            // store values on client localStorage and render image
-            storeValues(listOfObjects, listOfFavImgs);
-            renderButtonList(listOfObjects, ".imgButtonList");
+                // create object 
+                let newImgObj = {};
+                newImgObj.srcAnim = $(this).attr("srcAnim");
+                newImgObj.srcStill = $(this).attr("srcStill");
+                newImgObj.slug = $(this).attr("slug");
+
+                // add to index basd on slug
+                listOfFavImgs[newImgObj.slug] = newImgObj;
+
+                //store values
+                storeValues(listOfObjects, listOfFavImgs);
+
+                //render favorites
+                renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
+
+            }
         } else {
-            console.log("Nothing!")
+            // create object 
+            let newImgObj = {};
+            newImgObj.srcAnim = $(this).attr("srcAnim");
+            newImgObj.srcStill = $(this).attr("srcStill");
+            newImgObj.slug = $(this).attr("slug");
+
+            // add to index basd on slug
+            listOfFavImgs[newImgObj.slug] = newImgObj;
+
+            //store values
+            storeValues(listOfObjects, listOfFavImgs);
+
+            //render favorites
+            renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
         }
     })
 
-    // allow pressing the enter key to trigger click event, using solution #3 below
+    // allow pressing the enter key to trigger click event, using solution #3 below, 
     // https://www.codeproject.com/Questions/833565/Press-the-enter-key-in-a-text-box-with-jQuery
+    // ended up not using, a form element allows the enter key as input  
+    /*
     $("#addName").keyup(function (event) {
         event.preventDefault();
 
@@ -100,9 +131,10 @@ $(document).ready(function () {
             $(".addBtn").click();
         };
     });
-
+    */
 
 });
+
 
 
 function addBtnEventHandler() {
@@ -171,14 +203,19 @@ function queryGiphy(apikey, searchStr, imgDiv, limit) {
 
 
 // render favorites
-// render image 
-function renderFavGiphyImg(favList, imgDiv, altName) {
+function renderFavGiphyImgList(favList, imgDiv) {
     // clear out div
     $(imgDiv).empty();
 
+    console.log("Am i in the render favorite function?");
+    console.log(favList);
+
     // draw favorites
-    for (let i = 0; i < favList.length; i++) {
-        console.log(favList[i]);
+    for (var index in favList) {
+        console.log(index, ":::::", favList[index]);
+        let imgItem = $("<img>");
+        imgItem.attr("src", favList[index]["srcAnim"]);
+        $(imgDiv).append(imgItem);
     }
 
 }
@@ -198,6 +235,7 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         //  srcState is the current gif being used--still or animated
         let imgStill = giphyObj[i].images.fixed_height_still.url;
         let imgAnimated = giphyObj[i].images.fixed_height.url;
+        let imgSlug = giphyObj[i].slug;   // grab a unique identifier to use for favorites later
         let imgItem = $("<img>");
 
         // create card element
@@ -210,16 +248,28 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         // create card-footer element            
         let cardFooter = $("<div>");
         cardFooter.addClass("card-footer");
+        // create rating text
         let rating = "Rating: " + giphyObj[i].rating;
-        cardFooter.append(rating);
+        // create favorite Buttonand store values in it
+        let favBtn = $("<button>");
+        favBtn.addClass("addFav btn btn-warning btn-sm");
+        favBtn.attr("srcAnim", imgAnimated);
+        favBtn.attr("srcStill", imgStill);
+        favBtn.attr("slug", imgSlug);
+        favBtn.text("FAV");
 
 
-        // add attributes
+        // add content to footer
+        cardFooter.append(rating, favBtn);
+
+
+        // add attributes to img
         imgItem.addClass("giphyImg");
         imgItem.attr("src", imgStill);
         imgItem.attr("alt", altName);
         imgItem.attr("srcAnim", imgAnimated);
         imgItem.attr("srcStill", imgStill);
+        imgItem.attr("slug", imgSlug);
         imgItem.attr("srcState", "still");
         imgItem.addClass("img-fluid");
 
