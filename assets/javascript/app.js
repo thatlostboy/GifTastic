@@ -23,7 +23,7 @@ if (listofFavImgsJSON === null) {
 }
 
 
-
+// giphy
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
 var giphyLimit = 10;  // number of recrods at a time
 var giphyRating = "pg-13";
@@ -35,12 +35,20 @@ $(document).ready(function () {
 
     renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
-    // click on button to get pictures--activate request for giphy items
+    // add to Topics , add button to top area
+    $("body").on("click", ".addBtn", function (event) {
+        event.preventDefault();
+        console.log("Clicked addBtn");
+        addTopicEventHandler();
+    })
+
+
+    // click on Topic button to get pictures--activate API request for giphy items
     $("body").on("click", ".selTopic", function (event) {
         event.preventDefault();
         var buttonVal = this.innerText
-        var giphyOffset = parseInt( $(this).attr("giphyoffset"));
-        var giphyMax = parseInt ($(this).attr("giphymax"));
+        var giphyOffset = parseInt($(this).attr("giphyoffset"));
+        var giphyMax = parseInt($(this).attr("giphymax"));
 
         // add code to disable buttons while loading and reenable buttons later
 
@@ -49,7 +57,7 @@ $(document).ready(function () {
 
         // if the button is not clicked yet, taht means they switched topics
         // so reset all other offset to zero and start this one at 
-        if (giphyOffset === 0 ) {
+        if (giphyOffset === 0) {
             // clear out div
             $(".imgResultList").empty();
 
@@ -60,26 +68,26 @@ $(document).ready(function () {
             $(".selTopic").attr("giphyOffset", 0);
 
             // increment counter to the next 10
-            giphyOffset = giphyOffset + giphyLimit+1;
-            
+            giphyOffset = giphyOffset + giphyLimit + 1;
+
             // set selected button to a new value for giphyOffset
             $(this).attr("giphyoffset", giphyOffset);
-        // if clicking on same button, append more pictures.  
+            // if clicking on same button, append more pictures.  
         } else if (giphyOffset <= giphyMax) {
-    
+
             // run query on the next set of 10;
             queryGiphy(apikey, buttonVal, ".imgResultList", giphyLimit, giphyOffset, giphyRating, this);
 
             // increment counter to the next 10
             giphyOffset = giphyOffset + giphyLimit;
-            
+
             // set selected button to a new value for giphyOffset
             $(this).attr("giphyoffset", giphyOffset);
-        // if passed the maximum available pictures found, send a message out
+            // if passed the maximum available pictures found, send a message out
         } else {
-            alert ("There are no more images!")
+            alert("There are no more images!")
         }
-        
+
     })
 
     // toggle image between still and animated
@@ -104,7 +112,7 @@ $(document).ready(function () {
         }
     })
 
-    // delete Topic button
+    // click on the "X" to remove topic button from button list
     $("body").on("click", ".delXTopic", function (event) {
         // both single and double click event will register but that's okay
         event.preventDefault();
@@ -117,7 +125,18 @@ $(document).ready(function () {
         renderTopicList(listOfObjects, ".imgButtonList");
     })
 
-    // delete all favorites 
+    // send to Slack
+    $("body").on("click", ".sendToSlack", function (event) {
+        var textMsg = prompt("What text message do you want to accompany image?");
+        console.log(textMsg);
+        var confirmed = confirm("Are you sure you want to send the image to the class slack 'random 2' group?");
+        if (confirmed) {
+            alert("Messages sent to slack! :" + textMsg);
+        }
+    })
+
+
+    // clear all favorites from Tab
     $("body").on("click", ".clearAllFavBtn", function (event) {
         event.preventDefault();
         console.log("Clicketed delete all");
@@ -162,14 +181,8 @@ $(document).ready(function () {
     });
 
 
-    // add to Topics 
-    $("body").on("click", ".addBtn", function (event) {
-        event.preventDefault();
-        console.log("Clicked addBtn");
-        addBtnEventHandler();
-    })
 
-    // on gif, click on heart to add to favorites
+    // add image to favorites tab  (click on heart on card footer in search)
     $("body").on("click", ".addFav", function (event) {
         event.preventDefault();
         console.log($(this).attr("srcanim"));
@@ -184,8 +197,10 @@ $(document).ready(function () {
             newImgObj.srcAnim = $(this).attr("srcAnim");
             newImgObj.srcStill = $(this).attr("srcStill");
             newImgObj.slug = $(this).attr("slug");
+            newImgObj.rating = $(this).attr("rating");
+            console.log("add fav", newImgObj);
 
-            // add to index based on slug
+            // add to index based on slug, since slug looks unique
             listOfFavImgs[newImgObj.slug] = newImgObj;
 
             //store values
@@ -246,7 +261,7 @@ function removeSingleFavImg(favList, slugID, cssID) {
 }
 
 
-function addBtnEventHandler() {
+function addTopicEventHandler() {
 
     // grab button Value
     var newBtnText = $("#addName").val().trim();
@@ -273,7 +288,7 @@ function addBtnEventHandler() {
 
 // render button list
 function renderTopicList(topicList, btnDiv) {
-  
+
     $(btnDiv).empty();
 
     for (let i = 0; i < topicList.length; i++) {
@@ -287,7 +302,7 @@ function renderTopicList(topicList, btnDiv) {
         imgBtn.html(topicList[i]);
         imgBtn.attr("arrayidx", i);
         imgBtn.attr("giphyoffset", 0);
-        imgBtn.attr("giphymax",1000000);
+        imgBtn.attr("giphymax", 1000000);
         // add more classes
         imgBtn.addClass("selTopic btn btn-secondary btn-sm leftPadding");
 
@@ -314,7 +329,7 @@ function queryGiphy(apikey, searchStr, imgDiv, limit, offset, rating, buttonClic
         "api_key": apikey,
         "q": searchStr,
         "rating": rating,
-        "offset":offset,
+        "offset": offset,
         "limit": limit,
         "lang": "en",
     }
@@ -331,7 +346,7 @@ function queryGiphy(apikey, searchStr, imgDiv, limit, offset, rating, buttonClic
         console.log(response);
 
         // put in an accurate count of maximum for the giphy 
-        $(buttonClicked).attr("giphyMax",response['pagination']['total_count']);
+        $(buttonClicked).attr("giphyMax", response['pagination']['total_count']);
         renderGiphyImgLst(response, imgDiv, searchStr);
     });
 }
@@ -354,10 +369,13 @@ function renderFavGiphyImgList(favList, imgDiv) {
         //  srcState is the current gif being used--still or animated
         let imgStill = favList[index]["srcStill"];
         let imgAnimated = favList[index]["srcAnim"];
-        let imgSlug = favList[index].slug;   // grab a unique identifier to use for favorites later
+        let imgSlug = favList[index]["slug"];   // grab a unique identifier to place into delX
+        let ratingText = favList[index]["rating"];  // for footer
+        console.log(favList[index]);
+        console.log("favorite rating: ", ratingText);
 
 
-        // create card element
+        ///// create card elements
         let imgCard = $("<div>");
         imgCard.addClass("card favCard");
         imgCard.attr("slug", imgSlug);
@@ -370,21 +388,27 @@ function renderFavGiphyImgList(favList, imgDiv) {
         // create card-footer element            
         let cardFooter = $("<div>");
         cardFooter.addClass("card-footer");
-        // create rating text
-        // let rating = "Rating: " + giphyObj[i].rating;
-        // create favorite Buttonand store values in it
-        let favBtn = $("<button>");
-        favBtn.addClass("removeFav");
-        favBtn.attr("srcAnim", imgAnimated);
-        favBtn.attr("srcStill", imgStill);
-        favBtn.attr("slug", imgSlug);
-        favBtn.text("X");
+
+        ///////  card footer compoentns
+        // create Delete Button and store values in it
+        let delBtn = $("<button>");
+        delBtn.addClass("removeFav");
+        delBtn.attr("srcAnim", imgAnimated);
+        delBtn.attr("srcStill", imgStill);
+        delBtn.attr("slug", imgSlug);
+        delBtn.text("X");
+
+        // create slack icon 
+        let slackBtn = $("<img>");
+        slackBtn.attr("src", "./assets/images/slack-tiny.jpg");
+        slackBtn.attr("alt", "slack");
+        slackBtn.addClass("sendToSlack img-fluid");
 
 
-        // add content to footer
-        cardFooter.append(favBtn);
+        // add slackBtn and delBtn to card footer
+        cardFooter.append(slackBtn, delBtn);
 
-
+        //////// card body components
         // add attributes to img
         let imgItem = $("<img>");
         imgItem.addClass("giphyImg");
@@ -399,6 +423,7 @@ function renderFavGiphyImgList(favList, imgDiv) {
         //add img element to card-body
         cardBody.append(imgItem);
 
+        ///////  complete card
         // append p and img element to new div
         imgCard.append(cardBody, cardFooter);
         // console.log(imgCard);
@@ -425,7 +450,7 @@ function renderGiphyImgLst(giphyFullObj, imgDiv, altName) {
         let imgStill = giphyObj[i].images.fixed_height_still.url;
         let imgAnimated = giphyObj[i].images.fixed_height.url;
         let imgSlug = giphyObj[i].slug;   // grab a unique identifier to use for favorites later
-        
+
 
         // create card element
         let imgCard = $("<div>");
@@ -489,3 +514,42 @@ function storeValues(topicList, favImgList) {
     console.log("favImgList: ", favImgList);
 
 }
+
+// send to slack public room
+function sendToSlack(slackurl, textMsg) {
+    var url = "https://hooks.slack.com/services/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";
+    var text = "Van wong is testing   http://www.ucla.edu";
+
+    $.ajax({
+        data: 'payload=' + JSON.stringify({
+            "text": text
+        }),
+        dataType: 'json',
+        processData: false,
+        type: 'POST',
+        url: url
+    });
+}
+
+
+// https://gist.github.com/achavez/9767499
+/*
+
+webhook URL: https://hooks.slack.com/services/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
+// var url = // Webhook URL
+// var text = // Text to post
+
+var url = "https://hooks.slack.com/services/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";
+var text = "Van wong is testing   http://www.ucla.edu";
+
+$.ajax({
+    data: 'payload=' + JSON.stringify({
+        "text": text
+    }),
+    dataType: 'json',
+    processData: false,
+    type: 'POST',
+    url: url
+});
+
+*/

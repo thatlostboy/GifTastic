@@ -72,6 +72,10 @@ add overflow: hidden and transform: scale(1) to support safari ios
     color: red;
 }
 
+.sendToSlack {
+    height: 24px;
+}
+
 
 
 /*
