@@ -9,7 +9,8 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" media="screen" href="assets/css/style.css" />
 
 </head>
@@ -36,17 +37,18 @@
                     </div>
 
                 </div>
-                <div class="row marginTop">
-                    <div class="col-xs-12">
-                        <form>
-                            <div class="form-group">
-                                <input id="addName" type="text">
-                                <button class="addBtn btn btn-success btn-sm">Add Topic</button>
-                                <button id="loadMoreImg" class="btn btn btn-warning btn-sm">Load More </button>
-                            </div>
-                        </form>
-                    </div>
+
+
+                <div class="row marginTop form-group">
+                    <form>
+                        <div class="col-xs-12">
+                            <input id="addName" type="text">
+                            <button class="addBtn btn btn-success btn-sm">Add Topic</button>
+                        </div>
+
+                    </form>
                 </div>
+
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="card-columns imgResultList">
@@ -55,21 +57,21 @@
                 </div>
             </div>
             <div id="favorites" class="container tab-pane fade">
-                    <div class="row marginTop">
-                            <div class="col-xs-12">
-                                <form>
-                                    <div class="form-group">
-                                        <button class="clearAllFavBtn btn btn-danger btn-sm">Clear All Favorites</button>
-                                    </div>
-                                </form>
+                <div class="row marginTop">
+                    <div class="col-xs-12">
+                        <form>
+                            <div class="form-group">
+                                <button class="clearAllFavBtn btn btn-danger btn-sm">Clear All Favorites</button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="card-columns imgFavResultList">favorite stuff
                         </div>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <div class="card-columns imgFavResultList">favorite stuff
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

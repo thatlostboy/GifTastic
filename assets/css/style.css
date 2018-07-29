@@ -23,7 +23,7 @@ add overflow: hidden and transform: scale(1) to support safari ios
 }
 
 
-.imgButton {
+.imgButtonGrp {
     margin-top: 5px;
     margin-right: 5px;
     margin-bottom: 5px;
@@ -71,6 +71,7 @@ add overflow: hidden and transform: scale(1) to support safari ios
 .delXTopic:hover {
     color: red;
 }
+
 
 
 /*

@@ -1,4 +1,4 @@
-
+// check if list of topics exist in local storage
 var listOfObjects = JSON.parse(localStorage.getItem("topicList"));
 
 if (!Array.isArray(listOfObjects)) {
@@ -9,10 +9,12 @@ if (!Array.isArray(listOfObjects)) {
 // check if the favorites exists in local Storage 
 var listofFavImgsJSON = localStorage.getItem("favImgList");
 
-
+// if it doesn't exist, create one  
 if (listofFavImgsJSON === null) {
     var listOfFavImgs = {};
     // initialize the storage variable.  safari didn't store it correctly. 
+    // it initializes it as a array, so this method will initialize it as an 
+    // object
     storeValues(listOfObjects, listOfFavImgs);
     console.log("no favorite images");
 } else {
@@ -23,6 +25,8 @@ if (listofFavImgsJSON === null) {
 
 
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
+var giphyLimit = 10;  // number of recrods at a time
+var giphyRating = "pg-13";
 
 $(document).ready(function () {
 
@@ -31,13 +35,51 @@ $(document).ready(function () {
 
     renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
-    // activate request for giphy items
-    $("body").on("click", ".imgButton", function (event) {
+    // click on button to get pictures--activate request for giphy items
+    $("body").on("click", ".selTopic", function (event) {
         event.preventDefault();
         var buttonVal = this.innerText
+        var giphyOffset = parseInt( $(this).attr("giphyoffset"));
+        var giphyMax = parseInt ($(this).attr("giphymax"));
 
-        // this will queryGiphy and then send it to the renderGiphy
-        queryGiphy(apikey, buttonVal, ".imgResultList", 10, 0, "pg-13");
+        // add code to disable buttons while loading and reenable buttons later
+
+        // capture console los
+        console.log("Clicked on button!", giphyOffset, giphyMax);
+
+        // if the button is not clicked yet, taht means they switched topics
+        // so reset all other offset to zero and start this one at 
+        if (giphyOffset === 0 ) {
+            // clear out div
+            $(".imgResultList").empty();
+
+            // run query on the first set of 10
+            queryGiphy(apikey, buttonVal, ".imgResultList", giphyLimit, 0, giphyRating, this);
+
+            // reset all others giphyOffset's to zero
+            $(".selTopic").attr("giphyOffset", 0);
+
+            // increment counter to the next 10
+            giphyOffset = giphyOffset + giphyLimit+1;
+            
+            // set selected button to a new value for giphyOffset
+            $(this).attr("giphyoffset", giphyOffset);
+        // if clicking on same button, append more pictures.  
+        } else if (giphyOffset <= giphyMax) {
+    
+            // run query on the next set of 10;
+            queryGiphy(apikey, buttonVal, ".imgResultList", giphyLimit, giphyOffset, giphyRating, this);
+
+            // increment counter to the next 10
+            giphyOffset = giphyOffset + giphyLimit;
+            
+            // set selected button to a new value for giphyOffset
+            $(this).attr("giphyoffset", giphyOffset);
+        // if passed the maximum available pictures found, send a message out
+        } else {
+            alert ("There are no more images!")
+        }
+        
     })
 
     // toggle image between still and animated
@@ -143,7 +185,7 @@ $(document).ready(function () {
             newImgObj.srcStill = $(this).attr("srcStill");
             newImgObj.slug = $(this).attr("slug");
 
-            // add to index basd on slug
+            // add to index based on slug
             listOfFavImgs[newImgObj.slug] = newImgObj;
 
             //store values
@@ -215,7 +257,6 @@ function addBtnEventHandler() {
         // grab value in text area
         var newBtnText = $("#addName").val().trim();
 
-
         // clear value
         $("#addName").val("");
         //console.log(newBtnText);
@@ -232,24 +273,28 @@ function addBtnEventHandler() {
 
 // render button list
 function renderTopicList(topicList, btnDiv) {
+  
     $(btnDiv).empty();
+
     for (let i = 0; i < topicList.length; i++) {
 
         // div for button group
         let btnGroup = $("<div>");
-        btnGroup.addClass("btn-group imgButton");
+        btnGroup.addClass("btn-group imgButtonGrp");
 
         // button 1 of button group (add to display)
         let imgBtn = $("<button>");
         imgBtn.html(topicList[i]);
         imgBtn.attr("arrayidx", i);
+        imgBtn.attr("giphyoffset", 0);
+        imgBtn.attr("giphymax",1000000);
         // add more classes
         imgBtn.addClass("selTopic btn btn-secondary btn-sm leftPadding");
 
 
         // button 2 of button group (delete)
         let delXBtn = $("<button>");
-        delXBtn.addClass("btn btn-secondary btn-sm delXTopic");
+        delXBtn.addClass(" btn btn-secondary btn-sm delXTopic");
         delXBtn.attr("arrayidx", i);
         delXBtn.html("X");
 
@@ -258,19 +303,18 @@ function renderTopicList(topicList, btnDiv) {
 
         // add buttongroup to div
         $(btnDiv).append(btnGroup);
-
-        //$(btnDiv).append(imgBtn);
     }
 }
 
 
 // query giphy API for images
-function queryGiphy(apikey, searchStr, imgDiv, limit, offset, rating) {
+function queryGiphy(apikey, searchStr, imgDiv, limit, offset, rating, buttonClicked) {
     var baseURL = 'https://api.giphy.com/v1/gifs/search?';
     var queryParams = {
         "api_key": apikey,
         "q": searchStr,
         "rating": rating,
+        "offset":offset,
         "limit": limit,
         "lang": "en",
     }
@@ -285,8 +329,10 @@ function queryGiphy(apikey, searchStr, imgDiv, limit, offset, rating) {
         method: "GET",
     }).then(function (response) {
         console.log(response);
-        console.log(response.data);
-        renderGiphyImgLst(response.data, imgDiv, searchStr);
+
+        // put in an accurate count of maximum for the giphy 
+        $(buttonClicked).attr("giphyMax",response['pagination']['total_count']);
+        renderGiphyImgLst(response, imgDiv, searchStr);
     });
 }
 
@@ -363,9 +409,11 @@ function renderFavGiphyImgList(favList, imgDiv) {
 
 
 // render image 
-function renderGiphyImgLst(giphyObj, imgDiv, altName) {
-    // clear out div
-    $(imgDiv).empty();
+function renderGiphyImgLst(giphyFullObj, imgDiv, altName) {
+
+
+    // giphyObj images
+    giphyObj = giphyFullObj.data;
 
     // draw ten pictures. 
     for (let i = 0; i < giphyObj.length; i++) {
@@ -377,7 +425,7 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         let imgStill = giphyObj[i].images.fixed_height_still.url;
         let imgAnimated = giphyObj[i].images.fixed_height.url;
         let imgSlug = giphyObj[i].slug;   // grab a unique identifier to use for favorites later
-
+        
 
         // create card element
         let imgCard = $("<div>");
@@ -424,7 +472,7 @@ function renderGiphyImgLst(giphyObj, imgDiv, altName) {
         // append p and img element to new div
         imgCard.append(cardBody, cardFooter);
         // console.log(imgCard);
-        $(imgDiv).append(imgCard);
+        $(imgDiv).prepend(imgCard);
     }
 }
 
