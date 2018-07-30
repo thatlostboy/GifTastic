@@ -1,8 +1,8 @@
 // check if list of topics exist in local storage
-var listOfObjects = JSON.parse(localStorage.getItem("topicList"));
+var listOfTopics = JSON.parse(localStorage.getItem("topicList"));
 
-if (!Array.isArray(listOfObjects)) {
-    listOfObjects = ['hello'];
+if (!Array.isArray(listOfTopics)) {
+    listOfTopics = ['hello'];
 }
 
 
@@ -15,13 +15,20 @@ if (listofFavImgsJSON === null) {
     // initialize the storage variable.  safari didn't store it correctly. 
     // it initializes it as a array, so this method will initialize it as an 
     // object
-    storeValues(listOfObjects, listOfFavImgs);
+    storeValues(listOfTopics, listOfFavImgs);
     console.log("no favorite images");
 } else {
     var listOfFavImgs = JSON.parse(listofFavImgsJSON);
     console.log("found some images");
 }
 
+
+// slack URL for API
+// post to slack URL using javascript  https://gist.github.com/achavez/9767499
+// slackURL1 is the vanwong-test private channel in ucirv20180612online.  
+// slackURL2 is the random public channel in ucirv20180612online.  
+var slackURL1 = "https://hooks.slack.com/services/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";
+var slackURL2 = "https://hooks.slack.com/services/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";
 
 // giphy
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
@@ -31,7 +38,7 @@ var giphyRating = "pg-13";
 $(document).ready(function () {
 
 
-    renderTopicList(listOfObjects, ".imgButtonList");
+    renderTopicList(listOfTopics, ".imgButtonList");
 
     renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
 
@@ -118,20 +125,22 @@ $(document).ready(function () {
         event.preventDefault();
         var buttonIdx = $(this).attr("arrayidx");
         console.log("-------------------> " + buttonIdx + " got double clicked");
-        listOfObjects.splice(buttonIdx, 1);
+        listOfTopics.splice(buttonIdx, 1);
 
         // store values on client localStorage and render image
-        storeValues(listOfObjects, listOfFavImgs);
-        renderTopicList(listOfObjects, ".imgButtonList");
+        storeValues(listOfTopics, listOfFavImgs);
+        renderTopicList(listOfTopics, ".imgButtonList");
     })
 
     // send to Slack
     $("body").on("click", ".sendToSlack", function (event) {
         var textMsg = prompt("What text message do you want to accompany image?");
         console.log(textMsg);
-        var confirmed = confirm("Are you sure you want to send the image to the class slack 'random 2' group?");
+        var imgURL = $(this).attr("imageurl");
+        var confirmed = confirm("Are you sure you want to send the image to the class slack 'random' public channel?");
         if (confirmed) {
-            alert("Messages sent to slack! :" + textMsg);
+            alert("Messages sent to slack! :" + textMsg + " " + imgURL);
+            sendToSlack(slackURL2, textMsg, imgURL);
         }
     })
 
@@ -146,7 +155,7 @@ $(document).ready(function () {
             listOfFavImgs = {};
 
             //store values
-            storeValues(listOfObjects, listOfFavImgs);
+            storeValues(listOfTopics, listOfFavImgs);
 
             //render favorites
             renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
@@ -170,7 +179,7 @@ $(document).ready(function () {
             removeSingleFavImg(listOfFavImgs, slug, "div.favCard");
 
             //store values
-            storeValues(listOfObjects, listOfFavImgs);
+            storeValues(listOfTopics, listOfFavImgs);
 
             //render favorites
             renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
@@ -204,7 +213,7 @@ $(document).ready(function () {
             listOfFavImgs[newImgObj.slug] = newImgObj;
 
             //store values
-            storeValues(listOfObjects, listOfFavImgs);
+            storeValues(listOfTopics, listOfFavImgs);
 
             //render favorites
             renderFavGiphyImgList(listOfFavImgs, ".imgFavResultList");
@@ -253,7 +262,7 @@ function removeSingleFavImg(favList, slugID, cssID) {
     console.log("after: ", favList);
 
     //store values
-    storeValues(listOfObjects, favList);
+    storeValues(listOfTopics, favList);
 
     //render favorites
     renderFavGiphyImgList(favList, ".imgFavResultList");
@@ -275,11 +284,11 @@ function addTopicEventHandler() {
         // clear value
         $("#addName").val("");
         //console.log(newBtnText);
-        listOfObjects.push(newBtnText);
+        listOfTopics.push(newBtnText);
 
         // store values on client localStorage and render image
-        storeValues(listOfObjects, listOfFavImgs);
-        renderTopicList(listOfObjects, ".imgButtonList");
+        storeValues(listOfTopics, listOfFavImgs);
+        renderTopicList(listOfTopics, ".imgButtonList");
     } else {
         console.log("Nothing!")
     }
@@ -403,6 +412,7 @@ function renderFavGiphyImgList(favList, imgDiv) {
         slackBtn.attr("src", "./assets/images/slack-tiny.jpg");
         slackBtn.attr("alt", "slack");
         slackBtn.addClass("sendToSlack img-fluid");
+        slackBtn.attr("imageURL", imgAnimated);
 
 
         // add slackBtn and delBtn to card footer
@@ -516,9 +526,8 @@ function storeValues(topicList, favImgList) {
 }
 
 // send to slack public room
-function sendToSlack(slackurl, textMsg) {
-    var url = "https://hooks.slack.com/services/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";
-    var text = "Van wong is testing   http://www.ucla.edu";
+function sendToSlack(url, textMsg, imgURL) {
+    var text = imgURL+"\n"+textMsg;
 
     $.ajax({
         data: 'payload=' + JSON.stringify({
@@ -528,28 +537,9 @@ function sendToSlack(slackurl, textMsg) {
         processData: false,
         type: 'POST',
         url: url
+    }).then(function(response) {
+        // have no idea 
+        console.log(response);
     });
 }
 
-
-// https://gist.github.com/achavez/9767499
-/*
-
-webhook URL: https://hooks.slack.com/services/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
-// var url = // Webhook URL
-// var text = // Text to post
-
-var url = "https://hooks.slack.com/services/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";
-var text = "Van wong is testing   http://www.ucla.edu";
-
-$.ajax({
-    data: 'payload=' + JSON.stringify({
-        "text": text
-    }),
-    dataType: 'json',
-    processData: false,
-    type: 'POST',
-    url: url
-});
-
-*/
