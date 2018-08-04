@@ -27,8 +27,10 @@ if (listofFavImgsJSON === null) {
 // post to slack URL using javascript  https://gist.github.com/achavez/9767499
 // slackURL1 is the vanwong-test private channel in ucirv20180612online.  
 // slackURL2 is the random public channel in ucirv20180612online.  
-var slackURL1 = "https://hooks.slack.com/services/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";
-var slackURL2 = "https://hooks.slack.com/services/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";
+// slackURL3 is the van random public channel in ucirv20180612online.  
+var slackURL1 = "https://hooks.slack.com/services/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";   //   vanwong-test private channel
+var slackURL2 = "https://hooks.slack.com/services/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";  // random public channel
+var slackURL3 = "https://hooks.slack.com/services/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";  // van-random public channel
 
 // giphy
 var apikey = "9113ts3GR3ub5Fo63y5ppzFca9icpJoL";
@@ -140,7 +142,7 @@ $(document).ready(function () {
         var confirmed = confirm("Are you sure you want to send the image to the class slack 'random' public channel?");
         if (confirmed) {
             alert("Messages sent to slack! :" + textMsg + " " + imgURL);
-            sendToSlack(slackURL2, textMsg, imgURL);
+            sendToSlack(slackURL3, textMsg, imgURL);
         }
     })
 
